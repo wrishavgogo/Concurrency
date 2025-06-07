@@ -1,5 +1,6 @@
 Link :- https://leetcode.com/problems/print-foobar-alternately/description/
 
+Fairly easy question can be done using two semaphores , acquire and release accordingly as an when required 
 Question :- 
 
 Suppose you are given the following code:
