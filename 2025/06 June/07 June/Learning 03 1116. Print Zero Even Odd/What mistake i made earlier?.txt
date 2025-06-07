@@ -1,0 +1,87 @@
+My earlier solution , 
+Assumeed that each of the zero , even , odd function will be called by the new threads each time by n calls 
+separate times , but i did not read the question properly and that led to me finding myself 
+having a time limit exceed exception error , 
+because i was keeping a volatile x , and no limit on x , and so the thread was not printing correctly , 
+
+
+i should have introduced a while condition 
+like 
+
+while(x <= n ) -> like this on each of the odd , even function 
+and for zero x < n  ,  
+
+
+
+
+class ZeroEvenOdd {
+    private int n;
+    Semaphore zero ;
+    Semaphore odd ;
+    Semaphore even ;
+    volatile int x = 1;
+
+    public ZeroEvenOdd(int n) {
+        this.n = n;
+        zero = new Semaphore(1);
+        odd = new Semaphore(0);
+        even = new Semaphore(0);
+    }
+
+    // printNumber.accept(x) outputs "x", where x is an integer.
+    public void zero(IntConsumer printNumber) throws InterruptedException {
+        
+        // thread blocked till it can acquire zero 
+        
+        try {
+            zero.acquire();
+            printNumber.accept(0);
+        } finally { 
+
+            if(x % 2 == 0 ) {
+                // even thread should print 
+                even.release(1);
+            } else {
+                // odd thread should print
+                odd.release(1);
+            }
+        }
+        
+        
+    }
+
+    public void even(IntConsumer printNumber) throws InterruptedException {
+        
+        try {
+            even.acquire();
+            printNumber.accept(x);
+            x = x + 1;
+        } finally {
+
+            if(x >= n ) {
+                Thread.currentThread().interrupt();
+            }
+            zero.release(1);
+        }
+
+        
+        
+        
+    }
+
+    public void odd(IntConsumer printNumber) throws InterruptedException {
+        
+        try {
+            odd.acquire();
+            printNumber.accept(x);
+            x = x + 1;
+        } finally {
+            if(x >= n ) {
+                Thread.currentThread().interrupt();
+            }
+            zero.release(1);
+        }
+        
+        
+    }
+}
